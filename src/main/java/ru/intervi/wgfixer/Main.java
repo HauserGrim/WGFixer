@@ -33,12 +33,6 @@ public class Main extends JavaPlugin implements Listener {
 		Bukkit.getPluginManager().disablePlugin(this);
 	}
 
-	/*
-		TODO:
-		Добавить поддержку указания мира.
-		В WorldGuard есть аргумент -w, который позволяет редактировать регион в другом мире.
-		Например /rg addowner spawn -w world_the_end Vasya_Pupkin2001
-	*/
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onCommand(PlayerCommandPreprocessEvent event) {
 		Player player = event.getPlayer();
@@ -55,6 +49,7 @@ public class Main extends JavaPlugin implements Listener {
 			wworld = Bukkit.getServer().getWorld(cmd[3]);
 			cmd[2] = cmd[4];
 			cmd[3] = cmd[5];
+			return;
 		}
 		cmd[1]=getAction(cmd[1]);
 		if(cmd[1]==null)
