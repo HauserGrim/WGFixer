@@ -36,6 +36,7 @@ public class Main extends JavaPlugin implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onCommand(PlayerCommandPreprocessEvent event) {
 		Player player = event.getPlayer();
+		World wworld = player.getWorld();
 		String[] cmd = event.getMessage().toLowerCase().split(" ");
 		if (
 				cmd.length < 4
@@ -44,13 +45,6 @@ public class Main extends JavaPlugin implements Listener {
 				&&
 				!cmd[3].equals("-a"))
 			) return;
-		World wworld = player.getWorld();
-		if (!(cmd.length < 6) && cmd[2].equals("-w")) {
-			wworld = Bukkit.getServer().getWorld(cmd[3]);
-			cmd[2] = cmd[4];
-			cmd[3] = cmd[5];
-			return;
-		}
 		cmd[1]=getAction(cmd[1]);
 		if(cmd[1]==null)
 			return;
