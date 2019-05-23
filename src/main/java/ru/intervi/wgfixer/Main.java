@@ -50,6 +50,12 @@ public class Main extends JavaPlugin implements Listener {
 				&&
 				!cmd[3].equals("-a"))
 			) return;
+		World wworld = player.getWorld();
+		if (!(cmd.length < 6) && cmd[2].equals("-w")) {
+			wworld = Bukkit.getServer().getWorld(cmd[3]);
+			cmd[2] = cmd[4];
+			cmd[3] = cmd[5];
+		}
 		cmd[1]=getAction(cmd[1]);
 		if(cmd[1]==null)
 			return;
@@ -62,7 +68,7 @@ public class Main extends JavaPlugin implements Listener {
 		UUID uuid = essUser.getConfigUUID();
 		if (Bukkit.getPlayer(uuid) != null)
 			return;
-		ProtectedRegion rg = wg.getPlatform().getRegionContainer().get(BukkitAdapter.adapt(player.getWorld())).getRegion(cmd[2]);
+		ProtectedRegion rg = wg.getPlatform().getRegionContainer().get(BukkitAdapter.adapt(wworld)).getRegion(cmd[2]);
 		if (rg == null) {
 			player.sendMessage(ChatColor.RED + "Неизвестный регион " + cmd[2] + ".");
 			return;
