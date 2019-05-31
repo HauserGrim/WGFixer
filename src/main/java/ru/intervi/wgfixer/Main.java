@@ -1,27 +1,26 @@
 package ru.intervi.wgfixer;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.entity.Player;
-
+import org.bukkit.plugin.java.JavaPlugin;
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.User;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-
 import java.util.UUID;
 
 public class Main extends JavaPlugin implements Listener {
 	private final UUID ZERO_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 	private WorldGuard wg;
 	private Essentials ess;
+
 	@Override
 	public void onEnable() {
 		if (!Bukkit.getOnlineMode()) {
@@ -44,7 +43,7 @@ public class Main extends JavaPlugin implements Listener {
 				||
 				!((cmd[0].equals("/rg") || cmd[0].equals("/region") || cmd[0].equals("/regions") || cmd[0].equals("/worldguard:rg") || cmd[0].equals("/worldguard:region") || cmd[0].equals("/worldguard:regions")))
 			) return;
-		// Редактируются ли участники или владельцы региона
+		// Редактируются ли сейчас участники или владельцы региона
 		String action = getAction(cmd[1]);
 		if(action == null)
 			return;
@@ -54,12 +53,12 @@ public class Main extends JavaPlugin implements Listener {
 			event.setCancelled(true);
 			return;
 		}
-		// Отдельно запишем регион, ник и мир
+		// Отдельно запишем название региона, ник и мир
 		String region = null, name = null;
 		World world = null;
 		// Пропарсим команду начиная с третьего аргумента
 		for(int i = 2; i < cmd.length; i++) {
-			if(cmd[i].equals("-a"))
+			if(cmd[i].equals("-a") || cmd[i].equals("-n"))
 				return;
 			if(cmd[i].equals("-w")) {
 				if(world != null) {
@@ -102,11 +101,12 @@ public class Main extends JavaPlugin implements Listener {
 		// Если -w не указан - берем мир от игрока
 		if(world == null)
 			world=player.getWorld();
+		// Отменяем ивент, т.к. передавать команду в управление WG больше не требуется
+		event.setCancelled(true);
 		// Ищем игрока среди онлайна и оффлайна
 		UUID uuid = getUniqueId(name);
 		if(uuid == null) {
 			player.sendMessage(ChatColor.RED + "Игрока " + name + " ещё не было на сервере.");
-			event.setCancelled(true);
 			return;
 		}
 		if(uuid.equals(ZERO_UUID))
@@ -115,13 +115,11 @@ public class Main extends JavaPlugin implements Listener {
 		ProtectedRegion rg = wg.getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world)).getRegion(region);
 		if (rg == null) {
 			player.sendMessage(ChatColor.RED + "Неизвестный регион " + region + ".");
-			event.setCancelled(true);
 			return;
 		}
 		// Проверяем, может ли игрок творить свои дела
 		if (!canAffect(rg, action, player)) {
 			player.sendMessage(ChatColor.RED + "У вас недостаточно прав, чтобы сделать это.");
-			event.setCancelled(true);
 			return;
 		}
 		// Выполняем требуемое действие
@@ -150,7 +148,6 @@ public class Main extends JavaPlugin implements Listener {
 		// Сохраняем изменения
 		if(!saveChanges(world))
 			player.sendMessage(ChatColor.RED+"При попытке сохранения была найдена ошибка! Попробуйте позже.");
-		event.setCancelled(true);
 	}
 
 	// Вообще, это можно сделать и без Essentials. Здесь скорей вопрос оптимизации
