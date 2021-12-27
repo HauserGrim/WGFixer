@@ -4,3 +4,4 @@ version: ${project.version}
 description: ${project.description}
 author: InterVi
 depend: [WorldGuard, Essentials]
+api-version: 1.13
